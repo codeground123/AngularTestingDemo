@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="myModule">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="node_modules/angular/angular.min.js"></script>
+    <script src="src/js/app.js"></script>
+    <script src="src/js/quoteFactory.js"></script>
+        <script src="src/js/helloController.js"></script>
+    <script src="src/js/reverseFilter.js"></script>
+
+</head>
+<body>
+
+<div ng-controller="helloController">
+    {{firstName | reverse}}
+</div>
+
+</body>
+</html>
