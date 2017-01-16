@@ -1,51 +1,49 @@
-describe('quoteFactory spec', function() {
+describe("quoteFactory Tests", function () {
 
-beforeEach(module("myModule"));
+    beforeEach(module("myModule"));
 
-var quoteFactory, httpBackend, q, authors;
+    var service, $httpBackend;
 
-    beforeEach(inject(function (_quoteFactory_, $httpBackend, $q) {
-
-        authors = [
-            { author : 'Audrey Hepburn', text : "Nothing is impossible, the word itself says 'I'm possible'!"},
-            { author : 'Walt Disney', text : "You may not realize it when it happens, but a kick in the teeth may be the best thing in the world for you"},
-            { author : 'Unknown', text : "Even the greatest was once a beginner. Don't be afraid to take that first step."},
-            { author : 'Neale Donald Walsch', text : "You are afraid to die, and you're afraid to live. What a way to exist."}
-        ];
-        quoteFactory = _quoteFactory_;
-        httpBackend = $httpBackend;
-        q=$q;
+    beforeEach(inject(function (quoteFactory, _$httpBackend_) {
+        service = quoteFactory;
+        $httpBackend = _$httpBackend_;
     }));
 
-    afterEach(function() {
-        httpBackend.verifyNoOutstandingExpectation();
-        httpBackend.verifyNoOutstandingRequest();
-    });
-    describe("getquotes", function(){
+    describe("getData", function () {
+        it("should make ajax call to get quotes", function () {
+            $httpBackend.whenGET("http://localhost:3412/quotes").respond([{ author : 'Audrey Hepburn', text : "Nothing is impossible, the word itself says 'I'm possible'!"}]);
+            expect(service.getQuotes()).toBeDefined();
+        });
 
-        it("should get list of authors", function(){
-            var promise, response, result;
-            promise = quoteFactory.getQuotes();
-            promise.then(function(data){
-                result = data;
+        it("should resoolve to an array", function(){
+
+            $httpBackend.whenGET("http://localhost:3412/quotes").respond([{ author : 'Audrey Hepburn', text : "Nothing is impossible, the word itself says 'I'm possible'!"}]);
+            var promise = service.getQuotes(), theQuotes = null;
+            promise.then(function(quotes){
+                theQuotes = quotes;
+            })
+            $httpBackend.flush();
+            expect(theQuotes instanceof Array).toBeTruthy();
+
+        });
+
+        it("should reject the prmise", function(){
+            $httpBackend.whenGET("http://localhost:3412/quotes").respond(500);
+            var promise = service.getQuotes(),result = null;
+
+            promise.then(function(quotes){
+                result = quotes;
+            }, function(reason){
+                result = reason;
             });
-            response = {
-                data: {
-                    items: authors
-                }
-            };
-            httpBackend.expectGET("localhost:3412/quotes").respond(authors); // Expect a GET request and send back a canned response
-            httpBackend.flush(); // Flush pending requests
 
-            expect(result).toEqual(response);
-           // expect(result.data.items).toEqual(authors);
+            $httpBackend.flush();
+            expect(result).toBe("Error");
 
         });
 
-        afterEach(function() {
-            httpBackend.verifyNoOutstandingExpectation();
-            httpBackend.verifyNoOutstandingRequest();
-        });
+
+
     });
 
 
